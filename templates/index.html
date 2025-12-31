@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jarvis Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-1: #0b0f14;
+        --bg-2: #0f1622;
+        --bg-3: #0f1a2b;
+        --card: #141b26;
+        --panel: #0e141e;
+        --text: #e7eef7;
+        --muted: #9aa7bd;
+        --accent: #4fd1c5;
+        --accent-strong: #2eb6a8;
+        --border: rgba(255, 255, 255, 0.08);
+        --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Sora", system-ui, sans-serif;
+        background: radial-gradient(circle at top, #132033 0%, var(--bg-1) 45%),
+          radial-gradient(circle at 20% 80%, #1a2a41 0%, var(--bg-2) 60%);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(120deg, transparent 0%, var(--bg-3) 60%);
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .app {
+        position: relative;
+        width: min(920px, 96vw);
+        height: min(78vh, 760px);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: fade-in 420ms ease-out;
+      }
+
+      header {
+        padding: 22px 26px 18px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(
+          120deg,
+          rgba(79, 209, 197, 0.1),
+          transparent
+        );
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+      }
+
+      header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      #messages {
+        flex: 1;
+        padding: 22px 26px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .bubble {
+        max-width: 78%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        background: #1a2331;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        line-height: 1.5;
+        animation: rise-in 260ms ease-out;
+      }
+
+      .bubble.assistant {
+        align-self: flex-start;
+      }
+
+      .bubble.user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #243348, #1f2d3f);
+        border-color: rgba(79, 209, 197, 0.3);
+      }
+
+      .input-bar {
+        display: flex;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        background: rgba(14, 20, 30, 0.9);
+        backdrop-filter: blur(6px);
+      }
+
+      #chat-input {
+        flex: 1;
+        background: var(--panel);
+        border: 1px solid transparent;
+        color: var(--text);
+        padding: 12px 14px;
+        border-radius: 12px;
+        outline: none;
+        font-size: 1rem;
+      }
+
+      #chat-input:focus {
+        border-color: rgba(79, 209, 197, 0.6);
+        box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.18);
+      }
+
+      button {
+        background: linear-gradient(
+          135deg,
+          var(--accent),
+          var(--accent-strong)
+        );
+        color: #0b111b;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(46, 182, 168, 0.28);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes rise-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 14px;
+        }
+
+        .app {
+          height: 92vh;
+        }
+
+        #messages {
+          padding: 18px;
+        }
+
+        header {
+          padding: 18px;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>Jarvis</h1>
+        <p>Simple AI chat interface. Wire it to your Flask backend.</p>
+      </header>
+
+      <section id="messages" aria-live="polite">
+        <div class="bubble assistant">
+          Hello, I am Jarvis. Ask me anything when you are ready.
+        </div>
+      </section>
+
+      <form id="chat-form" class="input-bar" autocomplete="off">
+        <input
+          id="chat-input"
+          type="text"
+          name="message"
+          placeholder="Type your message..."
+          aria-label="Type your message"
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </main>
+
+    <script>
+      const form = document.getElementById("chat-form");
+      const input = document.getElementById("chat-input");
+      const messages = document.getElementById("messages");
+      const appendBubble = (text, role) => {
+        const bubble = document.createElement("div");
+        bubble.className = `bubble ${role}`;
+        bubble.textContent = text;
+        messages.appendChild(bubble);
+        messages.scrollTop = messages.scrollHeight;
+        return bubble;
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        appendBubble(text, "user");
+        input.value = "";
+
+        const placeholder = appendBubble("Thinking...", "assistant");
+
+        try {
+          const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Request failed");
+          }
+
+          const data = await response.json();
+          placeholder.textContent = data.reply || "No reply yet.";
+        } catch (error) {
+          placeholder.textContent =
+            "Backend not connected. Ensure /chat is running and GEMINI_API_KEY is set.";
+        }
+      });
+    </script>
+  </body>
+</html>
